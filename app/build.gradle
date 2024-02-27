@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    compileSdkVersion 33
+
+    defaultConfig {
+        applicationId "com.jtcstudios.filemanager"
+        minSdkVersion 29
+        targetSdkVersion 33
+        versionCode 2
+        versionName "2.0.0"
+        multiDexEnabled true
+        setProperty("archivesBaseName", "file-manager")
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    flavorDimensions "variants"
+    productFlavors {
+        core {}
+        fdroid {}
+        prepaid {}
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+    namespace 'com.simplemobiletools.filemanager.pro'
+
+}
+
+dependencies {
+    dependencies {
+        implementation 'com.github.JTCJTCC:JT-Framework:225b8254fe'
+    }
+    implementation 'com.github.tibbi:AndroidPdfViewer:da57ff410e'
+    implementation 'com.github.Stericson:RootTools:df729dcb13'
+    implementation 'com.github.Stericson:RootShell:1.6'
+    implementation 'com.alexvasilkov:gesture-views:2.5.2'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'me.grantland:autofittextview:0.2.1'
+}
